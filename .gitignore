@@ -6,6 +6,7 @@ out/
 **/*.iml
 **/.idea/**
 **/out/**
+**/resources/**
 
 ### Eclipse ###
 .apt_generated
