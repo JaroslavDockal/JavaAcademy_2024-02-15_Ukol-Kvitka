@@ -1,0 +1,4 @@
+Fialka 1	Popis fialky - je fialová a hezká	3	2024-02-15	2021-01-01
+Sukulent v koupelně	Nezalévá se	365	2011-03-01	2011-03-01
+Kaktus	Pozor na trny	14	2021-06-12	2021-06-01
+Fikus		7	2024-02-15	2024-02-15

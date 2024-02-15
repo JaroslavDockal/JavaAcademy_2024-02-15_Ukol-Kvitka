@@ -8,27 +8,38 @@ public class Plant {
     private String notes;
     private LocalDate planted;
     private LocalDate lastWatering;
-    private int frequencyOfWatering;
+    private int wateringFrequency;
 
-    public void setPlant(String name, String notes, LocalDate planted, LocalDate lastWatering, int frequencyOfWatering) {
+    public Plant(String name, String notes, int wateringFrequency, LocalDate lastWatering, LocalDate planted) throws PlantException {
         this.name = name;
         this.notes = notes;
         this.planted = planted;
+        setLastWatering(lastWatering);
+        setWateringFrequency(wateringFrequency);
+    }
+
+    public Plant() throws PlantException {
+        this.notes = "";
+        setLastWatering(LocalDate.now());
+    }
+
+    public Plant(String name) throws PlantException {
+        this(name, "", 7, LocalDate.now(), LocalDate.now());
+    }
+
+    private void setWateringFrequency(int wateringFrequency) throws PlantException {
+        if (wateringFrequency < 1) {
+            throw new PlantException("Zadaná špatná četnost zálivky. Zadaná četnost: " + wateringFrequency + " dní.");
+        }
+        this.wateringFrequency = wateringFrequency;
+    }
+
+    // ToDo Jak jinak to udělat? Dá se použít ten konstruktor na update, nebo jen na vytvoření nové rostliny?
+    public void setLastWatering(LocalDate lastWatering) throws PlantException {
+        if (lastWatering.isBefore(planted)) {
+            throw new PlantException("Datum poslední zálivky nesmí být dřív než zasazení. Zadané datum: " + lastWatering.format(DateTimeFormatter.ofPattern("d.M.y")) + ".");
+        }
         this.lastWatering = lastWatering;
-        this.frequencyOfWatering = frequencyOfWatering;
-    }
-
-    public void setPlant() {
-        this.notes = "";
-        this.lastWatering = LocalDate.now();
-    }
-
-    public void setPlant(String name) {
-        this.name = name;
-        this.notes = "";
-        this.planted = LocalDate.now();
-        this.lastWatering = LocalDate.now();
-        this.frequencyOfWatering = 7;
     }
 
     public String getName() {
@@ -47,12 +58,28 @@ public class Plant {
         return lastWatering;
     }
 
-    public int getFrequencyOfWatering() {
-        return frequencyOfWatering;
+    public int getWateringFrequency() {
+        return wateringFrequency;
     }
 
     public String getWateringInfo() {
-        return name + ", last watered " + lastWatering.format(DateTimeFormatter.ofPattern("d.M.y")) + ", next recommended watering "
-                + lastWatering.plusDays(frequencyOfWatering).format(DateTimeFormatter.ofPattern("d.M.y")) + ".";
+        return name + ", poslední zálivka " + lastWatering.format(DateTimeFormatter.ofPattern("d.M.y")) +
+                ", další doporučená zálivka " + lastWatering.plusDays(wateringFrequency).format(DateTimeFormatter.ofPattern("d.M.y")) + ".\n";
     }
+
+    @Override
+    public String toString() {
+        String dayString;
+        if (wateringFrequency == 1)  {
+            dayString = "den";
+        } else if (wateringFrequency < 5) {
+            dayString = "dny";
+        } else {
+            dayString = "dní";
+        }
+        return name + ", zasazeno " + planted.format(DateTimeFormatter.ofPattern("d.M.y")) +
+                ", naposledy zalito " + lastWatering.format(DateTimeFormatter.ofPattern("d.M.y")) +
+                ", frekvence zálivky " + wateringFrequency + " " + dayString + ".";
+    }
+
 }
