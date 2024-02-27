@@ -14,7 +14,7 @@ public class Main {
 
         PlantCollection plantCollection = new PlantCollection();
 
-        System.out.println("Načítáme seznam rostlin ze souboru: "+ Settings.getFileNameOut());
+        System.out.println("Načítáme seznam rostlin ze souboru: "+ Settings.getFileName());
         try {
             plantCollection.loadPlantsFromFile(fileName);
         } catch (PlantException e) {
@@ -24,21 +24,48 @@ public class Main {
             System.out.println("Nastala neznámá chyba:\n" + e.getLocalizedMessage());
         }
 
-        System.out.println("Seznam květin v seznamu:\n" + plantCollection.getPlants());
+           if (plantCollection.getPlants().isEmpty()) {
+            System.out.println("Seznam květin je prázdný.");
+        } else {
+            System.out.println("Seznam květin v seznamu:\n" + plantCollection.getPlants());
+        }
 
-        // Přidání nových květin
-        plantCollection.addPlant(new Plant("Kaktus", "Pozor na trny",14,LocalDate.of(2021, 6, 12), LocalDate.of(2021, 6, 1)));
-        plantCollection.addPlant(new Plant("Fikus"));
+        // ToDo: Dá se to udělat lépe (tak aby se to nemuselo psát vždycky znovu)?
+        try {
+            plantCollection.addPlant(new Plant("Kaktus", "Pozor na trny",96,LocalDate.of(2021, 6, 12), LocalDate.of(2021, 6, 1)));
+        } catch (PlantException e) {
+            System.err.println("Nastala chyba při přidávání květiny "  + e.getLocalizedMessage());
+        }
 
-        // Odstranění květiny
-        plantCollection.removePlant(1);
+        try {
+            plantCollection.addPlant(new Plant("Fikus"));
+        } catch (PlantException e) {
+            System.err.println("Nastala chyba při přidávání květiny:\n" + e.getLocalizedMessage());
+        }
 
-        // Aktualizované datum poslední zálivky
-        plantCollection.updateLastWatering(0);
+        try {
+            plantCollection.addPlant(new Plant("Orchidej", "Nepřelévat", 7, LocalDate.of(2021, 6, 12), LocalDate.of(2021, 6, 1)));
+        } catch (PlantException e) {
+            System.err.println("Nastala chyba při přidávání květiny:\n" + e.getLocalizedMessage());
+        }
 
-        System.out.println("Přehled zálivek:\n" + plantCollection.getPlantsSortedByWatering());
+        try {
+            plantCollection.removePlant(1);
+        } catch (PlantException e) {
+            System.err.println("Nastala chyba při odebírání květin:\n" + e.getLocalizedMessage());
+        }
 
-        System.out.println("Zapisujeme do souboru: "+ Settings.getFileNameOut());
+        try {
+            plantCollection.updateLastWatering(0);
+        } catch (PlantException e) {
+            System.err.println("Nastala chyba při aktualizaci data poslední zálivky:\n" + e.getLocalizedMessage());
+        }
+
+        if (!plantCollection.getPlants().isEmpty()) {
+            System.out.println("Přehled zálivek:\n" + plantCollection.getPlantsSortedByWatering());
+        }
+
+        System.out.println("Zapisujeme do souboru: "+ fileNameOut);
         try {
             plantCollection.savePlantsToFile(fileNameOut);
         } catch (PlantException e) {
@@ -48,5 +75,4 @@ public class Main {
             System.out.println("Nastala neznámá chyba:\n" + e.getLocalizedMessage());
         }
     }
-
 }
