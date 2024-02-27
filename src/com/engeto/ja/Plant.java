@@ -18,6 +18,7 @@ public class Plant {
         setWateringFrequency(wateringFrequency);
     }
 
+    // Nepoužito, ale požadováno v zadání
     public Plant() throws PlantException {
         this.notes = "";
         setLastWatering(LocalDate.now());
