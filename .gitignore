@@ -32,3 +32,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### External files ###
+**/resources/*.txt
