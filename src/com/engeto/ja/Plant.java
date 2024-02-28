@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Plant {
-    private String name;
-    private String notes;
-    private LocalDate planted;
+    private final String name;
+    private final String notes;
+    private final LocalDate planted;
     private LocalDate lastWatering;
     private int wateringFrequency;
 
@@ -18,14 +18,12 @@ public class Plant {
         setWateringFrequency(wateringFrequency);
     }
 
-    // Nepoužito, ale požadováno v zadání
-    public Plant() throws PlantException {
-        this.notes = "";
-        setLastWatering(LocalDate.now());
+    public Plant(String name, int wateringFrequency, LocalDate planted) throws PlantException {
+        this(name, "", wateringFrequency, LocalDate.now(), planted);
     }
 
     public Plant(String name) throws PlantException {
-        this(name, "", 7, LocalDate.now(), LocalDate.now());
+        this(name, 7, LocalDate.now());
     }
 
     private void setWateringFrequency(int wateringFrequency) throws PlantException {
@@ -35,10 +33,9 @@ public class Plant {
         this.wateringFrequency = wateringFrequency;
     }
 
-    // ToDo Jak jinak to udělat? Dá se použít ten konstruktor na update, nebo jen na vytvoření nové rostliny?
     public void setLastWatering(LocalDate lastWatering) throws PlantException {
         if (lastWatering.isBefore(planted)) {
-            throw new PlantException("Datum poslední zálivky nesmí být dřív než zasazení. Zadané datum: " + lastWatering.format(DateTimeFormatter.ofPattern("d.M.y")) + ".");
+            throw new PlantException("Datum poslední zálivky nesmí být dřív než datum zasazení. Zadané datum: " + lastWatering.format(DateTimeFormatter.ofPattern("d.M.y")) + ".");
         }
         this.lastWatering = lastWatering;
     }
@@ -65,7 +62,7 @@ public class Plant {
 
     public String getWateringInfo() {
         return name + ", poslední zálivka " + lastWatering.format(DateTimeFormatter.ofPattern("d.M.y")) +
-                ", další doporučená zálivka " + lastWatering.plusDays(wateringFrequency).format(DateTimeFormatter.ofPattern("d.M.y")) + ".\n";
+                ", další doporučená zálivka " + lastWatering.plusDays(wateringFrequency).format(DateTimeFormatter.ofPattern("d.M.y")) + ".";
     }
 
     @Override
@@ -78,7 +75,7 @@ public class Plant {
         } else {
             dayString = "dní";
         }
-        return name + ", zasazeno " + planted.format(DateTimeFormatter.ofPattern("d.M.y")) +
+        return "\n" + name + ", zasazeno " + planted.format(DateTimeFormatter.ofPattern("d.M.y")) +
                 ", naposledy zalito " + lastWatering.format(DateTimeFormatter.ofPattern("d.M.y")) +
                 ", frekvence zálivky " + wateringFrequency + " " + dayString + ".";
     }
