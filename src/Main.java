@@ -1,9 +1,8 @@
-import com.engeto.ja.Plant;
-import com.engeto.ja.PlantCollection;
-import com.engeto.ja.PlantException;
-import com.engeto.ja.Settings;
+import com.engeto.ja.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -34,14 +33,16 @@ public class Main {
         printDivider();
 
         updateLastWatering(plantCollection, 0);
-        printPlantsSortedByWatering(plantCollection);
+        printPlantsSortedByWatering(plantCollection.getPlants());
         printDivider();
 
         savePlants(plantCollection, fileNameOut);
         loadPlants(plantCollection, fileNameOut);
         printDivider();
 
-        printPlantsSortedByName(plantCollection);
+        printPlantsSortedByName(plantCollection.getPlants());
+
+        //testExceptions();
 
     }
 
@@ -81,7 +82,7 @@ public class Main {
         try {
             plantCollection.addPlant(new Plant(name, notes, wateringFrequency, lastWatering, planted));
         } catch (PlantException e) {
-            System.err.println("Nastala chyba při přidávání květiny " + name + ":\n" + e.getLocalizedMessage());
+            System.err.println("Nastala chyba při přidávání květiny \"" + name + "\":\n" + e.getLocalizedMessage());
         }
     }
 
@@ -89,7 +90,7 @@ public class Main {
         try {
             plantCollection.addPlant(new Plant(name, wateringFrequency, planted));
         } catch (PlantException e) {
-            System.err.println("Nastala chyba při přidávání květiny " + name + ":\n" + e.getLocalizedMessage());
+            System.err.println("Nastala chyba při přidávání květiny \"" + name + "\":\n" + e.getLocalizedMessage());
         }
     }
 
@@ -97,7 +98,7 @@ public class Main {
         try {
             plantCollection.addPlant(new Plant(name));
         } catch (PlantException e) {
-            System.err.println("Nastala chyba při přidávání květiny " + name + ":\n" + e.getLocalizedMessage());
+            System.err.println("Nastala chyba při přidávání květiny \"" + name + "\":\n" + e.getLocalizedMessage());
         }
     }
 
@@ -105,7 +106,7 @@ public class Main {
         try {
             plantCollection.removePlant(index);
         } catch (PlantException e) {
-            System.err.println("Nastala chyba při odebírání květin:\n" + e.getLocalizedMessage());
+            System.err.println("Nastala chyba při odebírání květiny na indexu " + index + ":\n" + e.getLocalizedMessage());
         }
     }
 
@@ -117,6 +118,14 @@ public class Main {
         }
     }
 
+    private static void updateLastWatering(PlantCollection plantCollection, int index, LocalDate lastWatering) {
+        try {
+            plantCollection.updateLastWatering(index, lastWatering);
+        } catch (PlantException e) {
+            System.err.println("Nastala chyba při aktualizaci data poslední zálivky:\n" + e.getLocalizedMessage());
+        }
+    }
+
     private static void updateLastWatering(PlantCollection plantCollection, int index) {
         try {
             plantCollection.updateLastWatering(index);
@@ -125,20 +134,68 @@ public class Main {
         }
     }
 
-    private static void printPlantsSortedByWatering(PlantCollection plantCollection) {
-        if (!plantCollection.getPlants().isEmpty()) {
-            System.out.println("Přehled květin řazený podle data poslední zálivky:\n" + plantCollection.getPlantsSortedByWatering());
+    private static void printPlantsSortedByWatering(List<Plant> plants) {
+        if (plants.isEmpty()) {
+            System.out.println("Seznam rostlin je prázdný.");
+        } else {
+            sortPlants(plants, PlantSortingCriteria.LAST_WATERING);
+            System.out.println("Přehled květin řazený dle data poslední zálivky:");
+            for (Plant plant : plants) {
+                System.out.println(plant.getWateringInfo());
+            }
         }
     }
 
-    private static void printPlantsSortedByName(PlantCollection plantCollection) {
-        if (!plantCollection.getPlants().isEmpty()) {
-            System.out.println("Přehled květin řazený dle abecedy:" + plantCollection.getPlantsSortedByName());
+    private static void printPlantsSortedByName(List<Plant> plants) {
+        if (plants.isEmpty()) {
+            System.out.println("Seznam rostlin je prázdný.");
+        } else {
+            sortPlants(plants, PlantSortingCriteria.NAME);
+            System.out.println("Seznam květin řazený podle názvu:" + plants);
+        }
+    }
+
+    private static void sortPlants(List<Plant> plants, PlantSortingCriteria sortingCriteria) {
+        try {
+            Collections.sort(plants, (plant1, plant2) -> plant1.compareTo(plant2, sortingCriteria));
+        } catch (IllegalArgumentException e) {
+            System.err.println("Nepodporované kritérium řazení: " + sortingCriteria);
         }
     }
 
     private static void printDivider() {
         System.out.println("--------------------------------------------------------------------------");
+    }
+
+    private static void testExceptions() {
+        PlantCollection plantCollectionTest = new PlantCollection();
+
+        //Question: Jsou chyby vždycky až na konci, nebo to jde vypsat "tak jak to jede"?
+
+        printDivider();printDivider();
+
+        loadPlants(plantCollectionTest, "resources/neexistujiciSoubor.txt");
+        loadPlants(plantCollectionTest, "resources/kvetiny-spatny-pocet-prvku.txt");
+        loadPlants(plantCollectionTest, "resources/kvetiny-spatne-datum.txt");
+        loadPlants(plantCollectionTest, "resources/kvetiny-spatne-frekvence.txt");
+
+        //Špatně zadaný index
+        addNewPlant(plantCollectionTest, "Orchidej", -7,  LocalDate.of(2021, 6, 12));
+        //Špatné datum poslední zálivky
+        addNewPlant(plantCollectionTest, "Růže", "" ,7,  LocalDate.of(2021, 6, 12), LocalDate.of(2021, 7, 1));
+        //Zadaný neexistující index
+        removePlant(plantCollectionTest, 9);
+        //Špatně zadaný index
+        printPlant(plantCollectionTest, -11);
+        //Zadaný neexistující index
+        updateLastWatering(plantCollectionTest, 2);
+        //Špatné datum poslední zálivky
+        updateLastWatering(plantCollectionTest, 1, LocalDate.of(2000, 6, 12));
+        // Nepodporované kritérium řazení
+        sortPlants(plantCollectionTest.getPlants(), PlantSortingCriteria.TESTING);
+
+        savePlants(plantCollectionTest, "resources/souborJenProCteni.txt");
+
     }
 
 }
