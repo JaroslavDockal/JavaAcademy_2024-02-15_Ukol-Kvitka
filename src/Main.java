@@ -7,26 +7,41 @@ import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
-        String fileName = Settings.getFileName();
+        String fileNameIn = Settings.getFileNameIn();
+        String fileNameOut = Settings.getFileNameOut();
 
         PlantCollection plantCollection = new PlantCollection();
 
-        loadPlants(plantCollection, fileName);
+        printDivider();
+        loadPlants(plantCollection, fileNameIn);
+        printDivider();
 
         printPlants(plantCollection);
+        printDivider();
 
         //Zvolil jsem tuhle cestu proto aby se vyjímky při vytváření new Plant odchytávali v rovnou v metodě níže a nebylo třeba je řešit tu...
         addNewPlant(plantCollection, "Kaktus", "Pozor na trny",96,LocalDate.of(2021, 6, 12), LocalDate.of(2021, 6, 1));
         addNewPlant(plantCollection, "Fikus");
-        addNewPlant(plantCollection, "Orchidej", "Nepřelévat", 7, LocalDate.of(2021, 6, 12), LocalDate.of(2021, 6, 1));
+        printDivider();
+
+        printPlant(plantCollection, 1);
+        printDivider();
 
         removePlant( plantCollection, 1);
+        printDivider();
+
+        printPlant(plantCollection, 1);
+        printDivider();
 
         updateLastWatering(plantCollection, 0);
-
         printPlantsSortedByWatering(plantCollection);
+        printDivider();
 
-        savePlants(plantCollection, fileName);
+        savePlants(plantCollection, fileNameOut);
+        loadPlants(plantCollection, fileNameOut);
+        printDivider();
+
+        printPlantsSortedByName(plantCollection);
 
     }
 
@@ -58,13 +73,21 @@ public class Main {
         if (plantCollection.getPlants().isEmpty()) {
             System.out.println("Seznam květin je prázdný.");
         } else {
-            System.out.println("Seznam květin:\n" + plantCollection.getPlants());
+            System.out.println("Seznam květin:\t" + plantCollection.getPlants());
         }
     }
 
     private static void addNewPlant(PlantCollection plantCollection, String name, String notes, int wateringFrequency, LocalDate lastWatering, LocalDate planted){
         try {
             plantCollection.addPlant(new Plant(name, notes, wateringFrequency, lastWatering, planted));
+        } catch (PlantException e) {
+            System.err.println("Nastala chyba při přidávání květiny " + name + ":\n" + e.getLocalizedMessage());
+        }
+    }
+
+    private static void addNewPlant(PlantCollection plantCollection, String name, int wateringFrequency, LocalDate planted){
+        try {
+            plantCollection.addPlant(new Plant(name, wateringFrequency, planted));
         } catch (PlantException e) {
             System.err.println("Nastala chyba při přidávání květiny " + name + ":\n" + e.getLocalizedMessage());
         }
@@ -86,6 +109,14 @@ public class Main {
         }
     }
 
+    private static void printPlant(PlantCollection plantCollection, int index) {
+        try {
+            System.out.println("Rostlina na indexu " + index + ": " + plantCollection.getPlant(index));
+        } catch (PlantException e) {
+            System.err.println("Nastala chyba při získávání květiny na indexu " + index + ":\n" + e.getLocalizedMessage());
+        }
+    }
+
     private static void updateLastWatering(PlantCollection plantCollection, int index) {
         try {
             plantCollection.updateLastWatering(index);
@@ -96,8 +127,18 @@ public class Main {
 
     private static void printPlantsSortedByWatering(PlantCollection plantCollection) {
         if (!plantCollection.getPlants().isEmpty()) {
-            System.out.println("Přehled zálivek:\n" + plantCollection.getPlantsSortedByWatering());
+            System.out.println("Přehled květin řazený podle data poslední zálivky:\n" + plantCollection.getPlantsSortedByWatering());
         }
+    }
+
+    private static void printPlantsSortedByName(PlantCollection plantCollection) {
+        if (!plantCollection.getPlants().isEmpty()) {
+            System.out.println("Přehled květin řazený dle abecedy:" + plantCollection.getPlantsSortedByName());
+        }
+    }
+
+    private static void printDivider() {
+        System.out.println("--------------------------------------------------------------------------");
     }
 
 }
