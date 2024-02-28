@@ -10,9 +10,13 @@ import static com.engeto.ja.Settings.getDelimiter;
 public class PlantCollection {
     private List<Plant> plants = new ArrayList<>();
 
-    public void addPlant(Plant plant) {
-        System.out.println("Přidávám rostlinu: " + plant.toString());
-        plants.add(plant);
+    public void addPlant(Plant plant) throws PlantException{
+        try {
+            System.out.println("Přidávám rostlinu: " + plant.toString());
+            plants.add(plant);
+        } catch (Exception e) {
+            throw new PlantException("Nastala chyba při přidávání rostliny:\n" + e.getLocalizedMessage());
+        }
     }
 
     // Method to retrieve a plant by index - not used atm.
