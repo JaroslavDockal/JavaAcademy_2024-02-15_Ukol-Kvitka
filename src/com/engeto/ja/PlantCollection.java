@@ -23,7 +23,7 @@ public class PlantCollection {
         try {
             return plants.get(index);
         } catch (IndexOutOfBoundsException e) {
-            throw new PlantException("Nelze získat rostlinu na indexu: " + index + " - index je mimo rozsah seznamu.");
+            throw new PlantException("Nelze získat rostlinu na indexu " + index + " - index je mimo rozsah seznamu.");
         }
     }
 
@@ -32,7 +32,7 @@ public class PlantCollection {
             System.out.println("Odebírám rostlinu: " + plants.get(index).toString());
             plants.remove(index);
         } else {
-            throw new PlantException("Nelze odebrat rostlinu na indexu: " + index + " - index je mimo rozsah seznamu.");
+            throw new PlantException("Nelze odebrat rostlinu na indexu " + index + " - index je mimo rozsah seznamu.");
         }
     }
 
@@ -42,10 +42,10 @@ public class PlantCollection {
                 plants.get(index).setLastWatering(lastWatering);
                 System.out.println("Poslední zalévání rostliny \"" + plants.get(index).getName() + "\" aktualizováno na: " + plants.get(index).getLastWatering().format(DateTimeFormatter.ofPattern("d.M.y")));
             } catch (PlantException e) {
-                throw new PlantException("Chyba při aktualizaci data poslední zálivky pro rostlinu " + plants.get(index).getName() + ":\n" + e.getLocalizedMessage());
+                throw new PlantException("Chyba při aktualizaci data poslední zálivky pro rostlinu \"" + plants.get(index).getName() + "\":\n" + e.getLocalizedMessage());
             }
         } else {
-            throw new PlantException("Nelze aktualizovat datum poslední zálivky pro rostlinu na indexu: " + index + " - index je mimo rozsah seznamu.");
+            throw new PlantException("Nelze aktualizovat datum poslední zálivky pro rostlinu na indexu " + index + " - index je mimo rozsah seznamu.");
         }
     }
 
@@ -63,7 +63,7 @@ public class PlantCollection {
                 System.out.println(line);
                 String[] parts = line.split(getDelimiter());
                 if(parts.length != 5) {
-                    throw new PlantException("Nesprávný počet položek na řádku číslo: " + lineCounter + ":" + line + "!");
+                    throw new PlantException("Nesprávný počet položek na řádku číslo " + lineCounter + ": " + line + "!");
                 }
                 String name = parts[0];
                 String notes = parts[1];
@@ -87,6 +87,7 @@ public class PlantCollection {
     }
 
     public void savePlantsToFile(String fileName) throws PlantException{
+        int lineCounter = 0;
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
             for (Plant plant : plants) {
                 writer.println(
@@ -95,13 +96,14 @@ public class PlantCollection {
                         plant.getWateringFrequency() + Settings.getDelimiter() +
                         plant.getLastWatering() + Settings.getDelimiter() +
                         plant.getPlanted());
+                lineCounter++;
             }
         } catch (FileNotFoundException e) {
             throw new PlantException("Soubor " + fileName + " nebyl nalezen!\n" + e.getLocalizedMessage());
         } catch (IOException e) {
             throw new PlantException("Nastala chyba při zápisu do souboru " + fileName + "!\n" + e.getLocalizedMessage());
         } finally {
-            System.out.println(saveToFileStatusMsg(plants.size()));
+            System.out.println(saveToFileStatusMsg(lineCounter));
         }
 
     }
@@ -112,7 +114,7 @@ public class PlantCollection {
         switch (listSize) {
             case 0 -> {
                 // Neberu to jako chybu, ale jen jako informaci o stavu
-                return "Žádné položky nebyly načteny - soubor je prázdný.";
+                return "Žádné položky nebyly načteny.";
             }case 1 -> {
                 loadedStr = "Načtena ";
                 itemStr = " položka.";
@@ -132,7 +134,7 @@ public class PlantCollection {
         String savedStr, itemStr;
         switch (listSize) {
             case 0 -> {
-                return "Žádné položky v seznamu - soubor bude prázdný.";
+                return "Žádné položky nebyly uloženy - soubor bude prázdný.";
             }case 1 -> {
                 savedStr = "Uložena ";
                 itemStr = " položka.";
@@ -150,26 +152,6 @@ public class PlantCollection {
 
     public List<Plant> getPlants() {
         return new ArrayList<>(plants);
-    }
-
-    public StringBuilder getPlantsSortedByName() {
-        List<Plant> sortedPlants = new ArrayList<>(plants);
-        Collections.sort(sortedPlants, Comparator.comparing(Plant::getName));
-        StringBuilder nameInfo = new StringBuilder();
-        for (Plant plant : sortedPlants) {
-            nameInfo.append(plant.toString());
-        }
-        return nameInfo;
-    }
-
-    public StringBuilder getPlantsSortedByWatering() {
-        List<Plant> sortedPlants = new ArrayList<>(plants);
-        Collections.sort(sortedPlants, Comparator.comparing(Plant::getLastWatering));
-        StringBuilder wateringInfo = new StringBuilder();
-        for (Plant plant : sortedPlants) {
-            wateringInfo.append(plant.getWateringInfo()).append("\n");
-        }
-        return wateringInfo;
     }
 
 }
