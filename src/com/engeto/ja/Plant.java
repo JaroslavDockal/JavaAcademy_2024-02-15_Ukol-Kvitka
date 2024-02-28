@@ -3,7 +3,7 @@ package com.engeto.ja;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class Plant {
+public class Plant implements Comparable<Plant> {
     private final String name;
     private final String notes;
     private final LocalDate planted;
@@ -80,4 +80,19 @@ public class Plant {
                 ", frekvence zálivky " + wateringFrequency + " " + dayString + ".";
     }
 
+    @Override
+    public int compareTo(Plant otherPlant) {
+        return compareTo(otherPlant, PlantSortingCriteria.NAME);
+    }
+
+    public int compareTo(Plant otherPlant, PlantSortingCriteria sortingCriteria) {
+        switch (sortingCriteria) {
+            case NAME:
+                return this.name.compareTo(otherPlant.name);
+            case LAST_WATERING:
+                return this.lastWatering.compareTo(otherPlant.lastWatering);
+            default:
+                throw new IllegalArgumentException("Nepodporované kritérium řazení: " + sortingCriteria);
+        }
+    }
 }
