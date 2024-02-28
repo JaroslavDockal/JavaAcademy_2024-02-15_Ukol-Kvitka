@@ -8,7 +8,7 @@ import java.util.*;
 import static com.engeto.ja.Settings.getDelimiter;
 
 public class PlantCollection {
-    private List<Plant> plants = new ArrayList<>();
+    private final List<Plant> plants = new ArrayList<>();
 
     public void addPlant(Plant plant) throws PlantException{
         try {
@@ -19,9 +19,12 @@ public class PlantCollection {
         }
     }
 
-    // Method to retrieve a plant by index - not used atm.
-    public Plant getPlant(int index) {
-        return plants.get(index);
+    public Plant getPlant(int index) throws PlantException{
+        try {
+            return plants.get(index);
+        } catch (IndexOutOfBoundsException e) {
+            throw new PlantException("Nelze získat rostlinu na indexu: " + index + " - index je mimo rozsah seznamu.");
+        }
     }
 
     public void removePlant(int index) throws PlantException{
@@ -149,12 +152,22 @@ public class PlantCollection {
         return new ArrayList<>(plants);
     }
 
+    public StringBuilder getPlantsSortedByName() {
+        List<Plant> sortedPlants = new ArrayList<>(plants);
+        Collections.sort(sortedPlants, Comparator.comparing(Plant::getName));
+        StringBuilder nameInfo = new StringBuilder();
+        for (Plant plant : sortedPlants) {
+            nameInfo.append(plant.toString());
+        }
+        return nameInfo;
+    }
+
     public StringBuilder getPlantsSortedByWatering() {
         List<Plant> sortedPlants = new ArrayList<>(plants);
         Collections.sort(sortedPlants, Comparator.comparing(Plant::getLastWatering));
         StringBuilder wateringInfo = new StringBuilder();
         for (Plant plant : sortedPlants) {
-            wateringInfo.append(plant.getWateringInfo());
+            wateringInfo.append(plant.getWateringInfo()).append("\n");
         }
         return wateringInfo;
     }
